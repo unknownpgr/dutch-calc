@@ -1,300 +1,345 @@
 <html>
-
-<head>
+  <head>
     <title>
-        Ducth-Calc
+      Ducth-Calc
     </title>
     <style>
-        @media print {
-            @page {
-                size: 297mm 210mm;
-                background-color: #000;
-            }
-
-            #calcTitle,
-            #calcHeader {
-                page-break-before: always;
-            }
+      @media print {
+        @page {
+          size: 297mm 210mm;
+          background-color: #000;
         }
 
-        html {
-            background-color: #222;
+        #calcTitle,
+        #calcHeader {
+          page-break-before: always;
         }
+      }
 
-        #title {
-            color: #fff;
-            padding: 32px;
-            font-size: 200%;
-            text-align: center;
-            font-weight: bold;
-        }
+      html {
+        background-color: #222;
+      }
 
-        #buttonFrame {
-            margin: 24px;
-            text-align: right;
-        }
+      #title {
+        color: #fff;
+        padding: 32px;
+        font-size: 200%;
+        text-align: center;
+        font-weight: bold;
+      }
 
-        .button {
-            width: 120px;
-            color: #aaa;
-            margin: 4px;
-            border: solid;
-            padding: 4px;
-            text-align: center;
-            display: inline-block;
-            background-color: #555;
-        }
+      #buttonFrame {
+        margin: 24px;
+        text-align: right;
+      }
 
-        #namesDiv {
-            display: flex;
-            justify-content: space-between;
-        }
+      .button {
+        width: 120px;
+        color: #aaa;
+        margin: 4px;
+        border: solid;
+        padding: 4px;
+        text-align: center;
+        display: inline-block;
+        background-color: #555;
+      }
 
-        .itemsRowDiv {
-            display: flex;
-            justify-content: space-between;
-        }
+      #namesDiv {
+        display: flex;
+        justify-content: space-between;
+      }
 
-        .tableElement {
-            width: 150px;
-            border: solid 1px #000;
-            margin: 4px;
-            padding: 4px;
-            display: inline-block;
-            text-align: center;
-            background-color: #bbb;
-        }
+      .itemsRowDiv {
+        display: flex;
+        justify-content: space-between;
+      }
 
-        .label {
-            background-color: #444;
-            color: #eee;
-        }
+      .tableElement {
+        width: 150px;
+        border: solid 1px #000;
+        margin: 4px;
+        padding: 4px;
+        display: inline-block;
+        text-align: center;
+        background-color: #bbb;
+      }
 
-        .firstColumn {
-            width: 250px;
-        }
+      .label {
+        background-color: #444;
+        color: #eee;
+      }
 
-        #calcTitle {
-            margin-right: 100px;
-            color: #fff;
-            font-size: 150%;
-            font-weight: bold;
-            margin-top: 32px;
-            padding-left: 32px;
-            display: inline-block;
-        }
+      .firstColumn {
+        width: 250px;
+      }
 
-        #calcDiv {
-            background-color: #444;
-            color: #eee;
-            margin: 4px;
-            padding: 16px;
-            line-height: 32px;
-            margin-top: 16px;
-        }
+      #calcTitle {
+        margin-right: 100px;
+        color: #fff;
+        font-size: 150%;
+        font-weight: bold;
+        margin-top: 32px;
+        padding-left: 32px;
+        display: inline-block;
+      }
 
-        select {
-            background-color: #444;
-            color: #eee;
-            outline: none;
-            padding: 2px;
-            width: 75%;
-        }
+      #calcDiv {
+        background-color: #444;
+        color: #eee;
+        margin: 4px;
+        padding: 16px;
+        line-height: 32px;
+        margin-top: 16px;
+      }
 
-        .selected_o {
-            background-color: #aca;
-        }
+      select {
+        background-color: #444;
+        color: #eee;
+        outline: none;
+        padding: 2px;
+        width: 75%;
+      }
 
-        .selected_x {
-            background-color: #caa;
-        }
+      .selected_o {
+        background-color: #aca;
+      }
+
+      .selected_x {
+        background-color: #caa;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="title">[ Dutch pay calculator ]</div>
     <div id="buttonFrame">
-        <div class="button" onclick="memberAdd()">Add member</div>
-        <div class="button" onclick="itemAdd()">Add item</div>
+      <div class="button" onclick="memberAdd()">Add member</div>
+      <div class="button" onclick="itemAdd()">Add item</div>
     </div>
-    <div style="color:#888">Click label to remove item or member</div>
+    <div style="color: #888;">Click label to remove item or member</div>
     <div id="tableDiv">
-        <div id="namesDiv">
-        </div>
-        <div id="itemsDiv"></div>
-        <div id="calcHeader">
-            <div id="calcTitle">[ Calculation result ] </div>
-            <div class="button" onclick="print()">Print</div>
-        </div>
-        <div id="calcDiv"></div>
+      <div id="namesDiv"></div>
+      <div id="itemsDiv"></div>
+      <div id="calcHeader">
+        <div id="calcTitle">[ Calculation result ]</div>
+        <div class="button" onclick="print()">Print</div>
+      </div>
+      <div id="calcDiv"></div>
     </div>
     <script>
+      var member = ["Member 1", "Member 2", "Member 3", "Member 4", "Member 5"];
 
-        var member = [
-            'Member 1',
-            'Member 2',
-            'Member 3',
-            'Member 4',
-            'Member 5'
-        ]
+      // The key of dict means the name of each item.
+      // 'user' is the list of index of users who used the item.
+      // 'payer' means who paid for the item.
+      // 'n' means payment share. if false, the price will be charged to each member. or, it will be divided by the number of user.
+      var items = {
+        "Item A": { price: 13900, user: [0, 1, 2, 3, 4], payer: 0, n: true },
+        "Item B": { price: 13900, user: [1, 2, 3, 4], payer: 2, n: false },
+        "Item C": { price: 14900, user: [0, 1, 2, 3, 4], payer: 1, n: true },
+        "Item D": {
+          price: 2000 + 2000,
+          user: [0, 1, 2, 4],
+          payer: 3,
+          n: false,
+        },
+        "Item E": { price: 5000, user: [3], payer: 4, n: true },
+      };
 
-        // The key of dict means the name of each item.
-        // 'user' is the list of index of users who used the item.
-        // 'payer' means who paid for the item.
-        // 'n' means payment share. if false, the price will be charged to each member. or, it will be divided by the number of user.
-        var items = {
-            'Item A': { price: 13900, user: [0, 1, 2, 3, 4], payer: 0, n: true },
-            'Item B': { price: 13900, user: [1, 2, 3, 4], payer: 2, n: false },
-            'Item C': { price: 14900, user: [0, 1, 2, 3, 4], payer: 1, n: true },
-            'Item D': { price: 2000 + 2000, user: [0, 1, 2, 4], payer: 3, n: false },
-            'Item E': { price: 5000, user: [3], payer: 4, n: true },
+      function memberAdd() {
+        var name = prompt("Name : ");
+        if (name == null) return;
+        member.push(name);
+        refresh();
+      }
+
+      function itemAdd() {
+        var name = prompt("Item name : ");
+        if (name == null) return;
+        var price = prompt("Price : ");
+        if (price == null) return;
+        price = price.replace(/'/g, "");
+        if (isNaN(price / 2)) {
+          alert("Price must be a number.");
+          return;
         }
+        var n = confirm("Price share?");
+        items[name] = { price: price, user: [], payer: 0, n: n };
+        refresh();
+      }
 
-        function memberAdd() {
-            var name = prompt('Name : ')
-            if (name == null) return
-            if (confirm('Do you want to add new user ' + name + '?')) member.push(name)
-            refresh()
+      function removeItem(item) {
+        if (!confirm("Do you want to remove " + item + "?")) return;
+        delete items[item];
+        refresh();
+      }
+
+      function removeMember(i) {
+        if (!confirm("Do you want to remove " + member[i] + "?")) return;
+        member.splice(i, 1);
+        Object.keys(items).forEach((key) => {
+          items[key].user = items[key].user
+            .map((k) => {
+              if (k == i) return null;
+              if (k < i) return k;
+              if (k > i) return k - 1;
+            })
+            .filter((x) => x != null);
+          if (items[key].payer == i) items[key].payer = -1;
+          if (items[key].payer > i) items[key].payer -= 1;
+        });
+        refresh();
+      }
+
+      function renderColumn() {
+        var html = "";
+        html += '<span class="tableElement label firstColumn">Item</span>';
+        member.forEach(
+          (element, i) =>
+            (html +=
+              '<span class="tableElement label" onclick="removeMember(' +
+              i +
+              ')">' +
+              element +
+              "</span>")
+        );
+        html += '<span class="tableElement label">Payer</span>';
+        namesDiv.innerHTML = html;
+      }
+
+      function renderRow() {
+        var options = member.reduce(
+          (pre, cur, i) =>
+            (pre += "<option value=" + i + ">" + cur + "</option>"),
+          ""
+        );
+        var html = "";
+        Object.entries(items).forEach(([key, item], i) => {
+          html += '<div class="itemsRowDiv">';
+          html +=
+            '<span class="tableElement label firstColumn" onclick="removeItem(\'' +
+            key +
+            "')\">" +
+            key +
+            " (" +
+            item.price +
+            "₩, " +
+            (item.n ? "Share" : "Each") +
+            ")" +
+            "</span>";
+          member.forEach((p, i) => {
+            var selected = item.user.indexOf(i) >= 0 ? "O" : "X";
+            html +=
+              '<span class="tableElement selected_' +
+              selected +
+              '" onclick="itemClick(this,\'' +
+              key +
+              "'," +
+              i +
+              ')">' +
+              selected +
+              "</span>";
+          });
+          html += '<span class="tableElement label">';
+          html +=
+            '<select id="select_' +
+            i +
+            '" onchange="setPayer(\'' +
+            key +
+            "',event)\">";
+          html += options;
+          html += "</select></span>";
+          html += "</div>";
+        });
+        itemsDiv.innerHTML = html;
+        Object.values(items).forEach((item, i) => {
+          document.getElementById("select_" + i).selectedIndex = item.payer;
+        });
+      }
+
+      // Process item click
+      function itemClick(use, item, user) {
+        if (use.innerText == "O") {
+          use.innerText = "X";
+          items[item].user.splice(items[item].user.indexOf(user), 1);
+          use.style.backgroundColor = "#caa";
+        } else {
+          use.innerText = "O";
+          items[item].user.push(user);
+          use.style.backgroundColor = "#aca";
         }
+        calc();
+      }
 
-        function itemAdd() {
-            var name = prompt('Item name : ')
-            if (name == null) return
-            var price = prompt('Price : ')
-            if (price == null) return
-            price = price.replace(/'/g, '')
-            if (isNaN(price / 2)) {
-                alert('Price must be a number.')
-                return
+      // Process payer change.
+      function setPayer(item, event) {
+        var user = event.target;
+        items[item].payer = user[user.selectedIndex].value;
+        calc();
+      }
+
+      // Calculate the dept.
+      function calc() {
+        //Create the pay table.
+        //The first index means who gives money and the second index means who gets to paid.
+        var payTable = [];
+        member.forEach((p, i) => {
+          payTable.push([]);
+          member.forEach((p2) => payTable[i].push(0));
+        });
+
+        //Calculate the dept.
+        Object.values(items).forEach((item) =>
+          item.user.forEach(
+            (user) =>
+              (payTable[user][item.payer] +=
+                item.price / (item.n ? item.user.length : 1))
+          )
+        );
+
+        //Marge duplicate results.
+        payTable.forEach((x, i1) =>
+          x.forEach((y, i2) => {
+            if (i1 == i2) payTable[i1][i2] = 0;
+            if (i1 > i2) {
+              payTable[i1][i2] -= payTable[i2][i1];
+              payTable[i2][i1] = 0;
             }
-            var n = confirm('Price share?')
-            if (confirm('Do you want to add new item ' + name + '?')) items[name] = { price: price, user: [], payer: 0, n: n }
-            refresh()
-        }
+          })
+        );
 
-        function removeItem(item) {
-            if (!confirm('Do you want to remove ' + item + '?')) return
-            delete items[item]
-            refresh()
-        }
+        //Create the calculation result list
+        var calcList = [];
+        payTable.forEach((x, i1) => {
+          x.forEach((y, i2) => {
+            if (i1 > i2 && payTable[i2][i1] != 0)
+              alert("Calculation error 1 / " + payTable[i2][i1]);
+            if (i1 == i2 && y != 0) alert("Calculation error 2 / " + x[i2]);
+            if (i1 < i2 || i1 == i2 || y == 0) return;
+            y = Math.round(y);
+            if (y > 0)
+              calcList.push(
+                member[i1] + " - - > " + member[i2] + " :\t" + y + "₩"
+              );
+            else
+              calcList.push(
+                member[i2] + " - - > " + member[i1] + " :\t " + -y + "₩"
+              );
+          });
+        });
 
-        function removeMember(i) {
-            if (!confirm('Do you want to remove ' + member[i] + '?')) return
-            member.splice(i, 1)
-            Object.keys(items).forEach(key => {
-                items[key].user = items[key].user.map(k => {
-                    if (k == i) return null
-                    if (k < i) return k
-                    if (k > i) return k - 1
-                }).filter(x => x != null)
-                if (items[key].payer == i) items[key].payer = -1
-                if (items[key].payer > i) items[key].payer -= 1
-            })
-            refresh()
-        }
+        //Sort and display the result.
+        calcDiv.innerText = "";
+        calcList.sort().forEach((line) => (calcDiv.innerText += line + "\n"));
+      }
 
-        function renderColumn() {
-            var html = ''
-            html += '<span class="tableElement label firstColumn">Item</span>'
-            member.forEach((element, i) => html += '<span class="tableElement label" onclick="removeMember(' + i + ')">' + element + '</span>');
-            html += '<span class="tableElement label">Payer</span>'
-            namesDiv.innerHTML = html
-        }
+      function refresh() {
+        renderColumn();
+        renderRow();
+        calc();
+      }
 
-        function renderRow() {
-            var options = member.reduce((pre, cur, i) => pre += '<option value=' + i + '>' + cur + '</option>', '');
-            var html = ''
-            Object.entries(items).forEach(([key, item], i) => {
-                html += '<div class="itemsRowDiv">'
-                html += '<span class="tableElement label firstColumn" onclick="removeItem(\'' + key + '\')">' + key + ' (' + item.price + '₩, ' + (item.n ? 'Share' : 'Each') + ')' + '</span>'
-                member.forEach((p, i) => {
-                    var selected = (item.user.indexOf(i) >= 0) ? 'O' : 'X'
-                    html += '<span class="tableElement selected_' + selected + '" onclick="itemClick(this,\'' + key + '\',' + i + ')">' + selected + '</span>'
-                });
-                html += '<span class="tableElement label">'
-                html += '<select id="select_' + i + '" onchange="setPayer(\'' + key + '\',event)">'
-                html += options
-                html += '</select></span>'
-                html += '</div>'
-            })
-            itemsDiv.innerHTML = html
-            Object.values(items).forEach((item, i) => {
-                document.getElementById('select_' + i).selectedIndex = item.payer
-            })
-        }
-
-        // Process item click
-        function itemClick(use, item, user) {
-            if (use.innerText == 'O') {
-                use.innerText = 'X'
-                items[item].user.splice(items[item].user.indexOf(user), 1)
-                use.style.backgroundColor = '#caa'
-            } else {
-                use.innerText = 'O'
-                items[item].user.push(user)
-                use.style.backgroundColor = '#aca'
-            }
-            calc()
-        }
-
-        // Process payer change.
-        function setPayer(item, event) {
-            var user = event.target
-            items[item].payer = user[user.selectedIndex].value
-            calc()
-        }
-
-        // Calculate the dept.
-        function calc() {
-
-            //Create the pay table.
-            //The first index means who gives money and the second index means who gets to paid.
-            var payTable = []
-            member.forEach((p, i) => {
-                payTable.push([])
-                member.forEach(p2 => payTable[i].push(0))
-            })
-
-            //Calculate the dept.
-            Object.values(items).forEach(item => item.user.forEach(user => payTable[user][item.payer] += item.price / (item.n ? item.user.length : 1)))
-
-            //Marge duplicate results.
-            payTable.forEach((x, i1) => x.forEach((y, i2) => {
-                if (i1 == i2) payTable[i1][i2] = 0
-                if (i1 > i2) {
-                    payTable[i1][i2] -= payTable[i2][i1]
-                    payTable[i2][i1] = 0
-                }
-            }))
-
-            //Create the calculation result list
-            var calcList = []
-            payTable.forEach((x, i1) => {
-                x.forEach((y, i2) => {
-                    if (i1 > i2 && payTable[i2][i1] != 0) alert('Calculation error 1 / ' + payTable[i2][i1])
-                    if (i1 == i2 && y != 0) alert('Calculation error 2 / ' + x[i2])
-                    if (i1 < i2 || i1 == i2 || y == 0) return
-                    y = Math.round(y)
-                    if (y > 0) calcList.push(member[i1] + ' - - > ' + member[i2] + ' :\t' + y + '₩')
-                    else calcList.push(member[i2] + ' - - > ' + member[i1] + ' :\t ' + (-y) + '₩')
-                });
-            });
-
-            //Sort and display the result.
-            calcDiv.innerText = ''
-            calcList
-                .sort()
-                .forEach(line => calcDiv.innerText += line + '\n')
-        }
-
-        function refresh() {
-            renderColumn()
-            renderRow()
-            calc()
-        }
-
-        refresh()
+      refresh();
     </script>
-</body>
-
+  </body>
 </html>
