@@ -1,2 +1,2 @@
-# dutch-calc
-page : https://unknownpgr.github.io/dutch-calc/main.html
+# Dutch Pay Calculator
+page : https://unknownpgr.github.io/dutch-calc/
