@@ -3,7 +3,16 @@
     <title>
       Ducth-Calc
     </title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
+      * {
+        font-family: "Noto Sans KR", sans-serif;
+      }
+
       @media print {
         @page {
           size: 297mm 210mm;
@@ -28,7 +37,7 @@
         font-weight: bold;
       }
 
-      #buttonFrame {
+      .buttonFrame {
         margin: 24px;
         text-align: right;
       }
@@ -107,14 +116,28 @@
       .selected_x {
         background-color: #caa;
       }
+
+      label {
+        color: white;
+      }
     </style>
+    <script src="./csv.js"></script>
   </head>
 
   <body>
     <div id="title">[ Dutch pay calculator ]</div>
-    <div id="buttonFrame">
-      <div class="button" onclick="memberAdd()">Add member</div>
-      <div class="button" onclick="itemAdd()">Add item</div>
+    <div class="buttonFrame">
+      <button class="button" onclick="memberAdd()">Add member</button>
+      <button class="button" onclick="itemAdd()">Add item</button>
+    </div>
+    <div class="buttonFrame">
+      <label for="importInput">Import csv file</label>
+      <input
+        type="file"
+        class="button"
+        onchange="importCSV(event)"
+        id="importInput"
+      />
     </div>
     <div style="color: #888;">Click label to remove item or member</div>
     <div id="tableDiv">
@@ -137,12 +160,7 @@
         "Item A": { price: 13900, user: [0, 1, 2, 3, 4], payer: 0, n: true },
         "Item B": { price: 13900, user: [1, 2, 3, 4], payer: 2, n: false },
         "Item C": { price: 14900, user: [0, 1, 2, 3, 4], payer: 1, n: true },
-        "Item D": {
-          price: 2000 + 2000,
-          user: [0, 1, 2, 4],
-          payer: 3,
-          n: false,
-        },
+        "Item D": { price: 2000, user: [0, 1, 2, 4], payer: 3, n: false },
         "Item E": { price: 5000, user: [3], payer: 4, n: true },
       };
 
@@ -259,7 +277,7 @@
 
       // Process item click
       function itemClick(use, item, user) {
-        if (use.innerText == "O") {
+        if (items[item].user.indexOf(user) >= 0) {
           use.innerText = "X";
           items[item].user.splice(items[item].user.indexOf(user), 1);
           use.style.backgroundColor = "#caa";
@@ -337,6 +355,50 @@
         renderColumn();
         renderRow();
         calc();
+      }
+
+      function importCSV(event) {
+        if (!event.target.files[0]) return;
+        new Promise((resolve, reject) => {
+          let fr = new FileReader();
+          fr.onload = function () {
+            resolve(fr.result);
+          };
+          fr.readAsText(event.target.files[0]);
+        })
+          .then((result) => {
+            let data = CSVToArray(result);
+            data.shift();
+            member = [];
+            items = {};
+            for (let i = 0; i < data.length; i++) {
+              if (member.indexOf(data[i][2]) < 0) {
+                member.push(data[i][2]);
+              }
+            }
+            for (let i = 0; i < data.length; i++) {
+              let item = data[i][0];
+              let price = data[i][1].replace(/,/g, "") * 1;
+              let name = data[i][2];
+              if (items[item]) {
+                for (let i = 1; ; i++) {
+                  if (!items[item + `(${i})`]) {
+                    item = item + `(${i})`;
+                    break;
+                  }
+                }
+              }
+              let everyUser = [];
+              for (let i = 0; i < member.length; i++) everyUser.push(i);
+              items[item] = {
+                price: price,
+                user: everyUser,
+                payer: member.indexOf(name),
+                n: true,
+              };
+            }
+          })
+          .then(refresh);
       }
 
       refresh();
